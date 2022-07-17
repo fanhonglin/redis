@@ -103,6 +103,7 @@ static inline size_t sdsTypeMaxSize(char type) {
 
 // 创建字符串
 sds _sdsnewlen(const void *init, size_t initlen, int trymalloc) {
+
     void *sh;
     sds s;
 
@@ -179,6 +180,7 @@ sds _sdsnewlen(const void *init, size_t initlen, int trymalloc) {
     return s;
 }
 
+// sds分配内存
 sds sdsnewlen(const void *init, size_t initlen) {
     return _sdsnewlen(init, initlen, 0);
 }
