@@ -700,6 +700,8 @@ typedef struct redisObject {
 
     // 引用
     int refcount;
+
+    // 数据指针
     void *ptr;
 } robj;
 

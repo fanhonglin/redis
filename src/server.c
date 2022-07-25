@@ -6453,6 +6453,7 @@ int main(int argc, char **argv) {
     redisSetCpuAffinity(server.server_cpulist);
     setOOMScoreAdj(-1);
 
+    //
     aeMain(server.el);
     aeDeleteEventLoop(server.el);
     return 0;

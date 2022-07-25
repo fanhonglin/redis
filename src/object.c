@@ -1308,10 +1308,14 @@ robj *objectCommandLookupOrReply(client *c, robj *key, robj *reply) {
 
 /* Object command allows to inspect the internals of a Redis Object.
  * Usage: OBJECT <refcount|encoding|idletime|freq> <key> */
+
+// object 命令
 void objectCommand(client *c) {
     robj *o;
 
     if (c->argc == 2 && !strcasecmp(c->argv[1]->ptr, "help")) {
+
+        // object help
         const char *help[] = {
                 "ENCODING <key>",
                 "    Return the kind of internal representation used in order to store the value",
@@ -1329,29 +1333,41 @@ void objectCommand(client *c) {
         };
         addReplyHelp(c, help);
     } else if (!strcasecmp(c->argv[1]->ptr, "refcount") && c->argc == 3) {
+
+        // object refcount xxx
         if ((o = objectCommandLookupOrReply(c, c->argv[2], shared.null[c->resp]))
             == NULL)
             return;
         addReplyLongLong(c, o->refcount);
     } else if (!strcasecmp(c->argv[1]->ptr, "encoding") && c->argc == 3) {
+
+        // object encoding xxx
         if ((o = objectCommandLookupOrReply(c, c->argv[2], shared.null[c->resp]))
             == NULL)
             return;
         addReplyBulkCString(c, strEncoding(o->encoding));
     } else if (!strcasecmp(c->argv[1]->ptr, "idletime") && c->argc == 3) {
+
+        // object idletime xx
         if ((o = objectCommandLookupOrReply(c, c->argv[2], shared.null[c->resp]))
             == NULL)
             return;
+
         if (server.maxmemory_policy & MAXMEMORY_FLAG_LFU) {
             addReplyError(c,
                           "An LFU maxmemory policy is selected, idle time not tracked. Please note that when switching between policies at runtime LRU and LFU data will take some time to adjust.");
             return;
         }
+
+        //
         addReplyLongLong(c, estimateObjectIdleTime(o) / 1000);
     } else if (!strcasecmp(c->argv[1]->ptr, "freq") && c->argc == 3) {
+
         if ((o = objectCommandLookupOrReply(c, c->argv[2], shared.null[c->resp]))
             == NULL)
             return;
+
+        // Maxmomory-policy = LFU，返回键的对数访问频率计数器， 如果不是LFU，那么就报错
         if (!(server.maxmemory_policy & MAXMEMORY_FLAG_LFU)) {
             addReplyError(c,
                           "An LFU maxmemory policy is not selected, access frequency not tracked. Please note that when switching between policies at runtime LRU and LFU data will take some time to adjust.");
@@ -1361,7 +1377,10 @@ void objectCommand(client *c) {
          * in case of the key has not been accessed for a long time,
          * because we update the access time only
          * when the key is read or overwritten. */
+
+        // 计算频率 LFUDecrAndReturn
         addReplyLongLong(c, LFUDecrAndReturn(o));
+
     } else {
         addReplySubcommandSyntaxError(c);
     }
