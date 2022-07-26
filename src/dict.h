@@ -51,28 +51,41 @@
 // 字典
 typedef struct dictEntry {
 
-    // 键
+    // 键 sds
     void *key;
 
     // 值
     union {
+
+        // 值得地址 redisObject
         void *val;
         uint64_t u64;
         int64_t s64;
         double d;
     } v;
+
+    // hash冲突之后，指向下一个key-value
     struct dictEntry *next;
 } dictEntry;
 
 
 // 字典类型
 typedef struct dictType {
+
+    // hash函数
     uint64_t (*hashFunction)(const void *key);
+
     void *(*keyDup)(void *privdata, const void *key);
+
     void *(*valDup)(void *privdata, const void *obj);
+
+    // 比较
     int (*keyCompare)(void *privdata, const void *key1, const void *key2);
+
     void (*keyDestructor)(void *privdata, void *key);
+
     void (*valDestructor)(void *privdata, void *obj);
+
     int (*expandAllowed)(size_t moreMem, double usedRatio);
 } dictType;
 
@@ -82,7 +95,7 @@ typedef struct dictType {
 // dict hashtable
 typedef struct dictht {
 
-    // 哈希表数组
+    // 哈希表数组，存放键值对的地方
     dictEntry **table;
 
     // 哈希表大小
@@ -93,11 +106,15 @@ typedef struct dictht {
 
     // 已有节点数
     unsigned long used;
+
 } dictht;
 
+// 字段
 typedef struct dict {
 
+    // 字典类型，包括hash算法
     dictType *type;
+
     void *privdata;
 
     // 哈希表，字典使用 ht[0] 作为哈希表，ht[1] 用于进行 rehash
@@ -123,6 +140,7 @@ typedef struct dictIterator {
 } dictIterator;
 
 typedef void (dictScanFunction)(void *privdata, const dictEntry *de);
+
 typedef void (dictScanBucketFunction)(void *privdata, dictEntry **bucketref);
 
 /* This is the initial size of every hash table */
@@ -186,38 +204,72 @@ typedef void (dictScanBucketFunction)(void *privdata, dictEntry **bucketref);
 
 /* API */
 dict *dictCreate(dictType *type, void *privDataPtr);
+
 int dictExpand(dict *d, unsigned long size);
+
 int dictTryExpand(dict *d, unsigned long size);
+
 int dictAdd(dict *d, void *key, void *val);
+
 dictEntry *dictAddRaw(dict *d, void *key, dictEntry **existing);
+
 dictEntry *dictAddOrFind(dict *d, void *key);
+
 int dictReplace(dict *d, void *key, void *val);
+
 int dictDelete(dict *d, const void *key);
+
 dictEntry *dictUnlink(dict *ht, const void *key);
+
 void dictFreeUnlinkedEntry(dict *d, dictEntry *he);
+
 void dictRelease(dict *d);
-dictEntry * dictFind(dict *d, const void *key);
+
+dictEntry *dictFind(dict *d, const void *key);
+
 void *dictFetchValue(dict *d, const void *key);
+
 int dictResize(dict *d);
+
 dictIterator *dictGetIterator(dict *d);
+
 dictIterator *dictGetSafeIterator(dict *d);
+
 dictEntry *dictNext(dictIterator *iter);
+
 void dictReleaseIterator(dictIterator *iter);
+
 dictEntry *dictGetRandomKey(dict *d);
+
 dictEntry *dictGetFairRandomKey(dict *d);
+
 unsigned int dictGetSomeKeys(dict *d, dictEntry **des, unsigned int count);
+
 void dictGetStats(char *buf, size_t bufsize, dict *d);
+
 uint64_t dictGenHashFunction(const void *key, int len);
+
 uint64_t dictGenCaseHashFunction(const unsigned char *buf, int len);
-void dictEmpty(dict *d, void(callback)(void*));
+
+void dictEmpty(dict *d, void(callback)(void *));
+
 void dictEnableResize(void);
+
 void dictDisableResize(void);
+
 int dictRehash(dict *d, int n);
+
 int dictRehashMilliseconds(dict *d, int ms);
+
 void dictSetHashFunctionSeed(uint8_t *seed);
+
 uint8_t *dictGetHashFunctionSeed(void);
-unsigned long dictScan(dict *d, unsigned long v, dictScanFunction *fn, dictScanBucketFunction *bucketfn, void *privdata);
+
+unsigned long
+dictScan(dict *d, unsigned long v, dictScanFunction *fn, dictScanBucketFunction *bucketfn, void *privdata);
+
 uint64_t dictGetHash(dict *d, const void *key);
+
 dictEntry **dictFindEntryRefByPtrAndHash(dict *d, const void *oldptr, uint64_t hash);
 
 /* Hash table types */

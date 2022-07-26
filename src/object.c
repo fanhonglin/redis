@@ -494,7 +494,11 @@ robj *tryObjectEncoding(robj *o) {
     /* Check if we can represent this string as a long integer.
      * Note that we are sure that a string larger than 20 chars is not
      * representable as a 32 nor 64 bit integer. */
+
+    // 计算sds的长度
     len = sdslen(s);
+
+    // 长度小于20并且字符串转换成整形
     if (len <= 20 && string2l(s, len, &value)) {
         /* This object is encodable as a long. Try to use a shared object.
          * Note that we avoid using shared integers when maxmemory is used
@@ -524,10 +528,16 @@ robj *tryObjectEncoding(robj *o) {
      * try the EMBSTR encoding which is more efficient.
      * In this representation the object and the SDS string are allocated
      * in the same chunk of memory to save space and cache misses. */
+
+    // 如果长度小于44
     if (len <= OBJ_ENCODING_EMBSTR_SIZE_LIMIT) {
+
+        // 创建redisObject
         robj *emb;
 
         if (o->encoding == OBJ_ENCODING_EMBSTR) return o;
+
+        // 创建embedstring
         emb = createEmbeddedStringObject(s, sdslen(s));
         decrRefCount(o);
         return emb;

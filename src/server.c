@@ -211,6 +211,8 @@ struct redisCommand redisCommandTable[] = {
 
     /* Note that we can't flag set as fast, since it may perform an
      * implicit DEL of a large key. */
+
+    // set xx xx
     {"set",setCommand,-3,
      "write use-memory @string",
      0,NULL,1,1,1,0,0,0},
