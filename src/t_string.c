@@ -257,6 +257,7 @@ void setCommand(client *c) {
     // key是否应该被设置到数据库
     int flags = OBJ_NO_FLAGS;
 
+    // 解析setnx , setex
     if (parseExtendedStringArgumentsOrReply(c, &flags, &unit, &expire, COMMAND_SET) != C_OK) {
         return;
     }
@@ -298,6 +299,7 @@ int getGenericCommand(client *c) {
     return C_OK;
 }
 
+// get
 void getCommand(client *c) {
     getGenericCommand(c);
 }

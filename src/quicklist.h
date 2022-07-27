@@ -43,17 +43,39 @@
  * recompress: 1 bit, bool, true if node is temporary decompressed for usage.
  * attempted_compress: 1 bit, boolean, used for verifying during testing.
  * extra: 10 bits, free for future use; pads out the remainder of 32 bits */
+
+// 双端链表： quicklistNode 32 bite
 typedef struct quicklistNode {
+
+    // 前面一个节点
     struct quicklistNode *prev;
+
+    // 后面一个节点
     struct quicklistNode *next;
+
+    // 1bite
     unsigned char *zl;
+
+    // 8byte
     unsigned int sz;             /* ziplist size in bytes */
-    unsigned int count : 16;     /* count of items in ziplist */
-    unsigned int encoding : 2;   /* RAW==1 or LZF==2 */
-    unsigned int container : 2;  /* NONE==1 or ZIPLIST==2 */
-    unsigned int recompress : 1; /* was this node previous compressed? */
-    unsigned int attempted_compress : 1; /* node can't compress; too small */
-    unsigned int extra : 10; /* more bits to steal for future usage */
+
+    // 16bit
+    unsigned int count: 16;     /* count of items in ziplist */
+
+    // 2bit
+    unsigned int encoding: 2;   /* RAW==1 or LZF==2 */
+
+    // 2bit
+    unsigned int container: 2;  /* NONE==1 or ZIPLIST==2 */
+
+    // 1bit
+    unsigned int recompress: 1; /* was this node previous compressed? */
+
+    // 1bit
+    unsigned int attempted_compress: 1; /* node can't compress; too small */
+
+    // 10bit
+    unsigned int extra: 10; /* more bits to steal for future usage */
 } quicklistNode;
 
 /* quicklistLZF is a 4+N byte struct holding 'sz' followed by 'compressed'.
@@ -102,13 +124,23 @@ typedef struct quicklistBookmark {
  * 'fill' is the user-requested (or default) fill factor.
  * 'bookmakrs are an optional feature that is used by realloc this struct,
  *      so that they don't consume memory when not used. */
+
+// list的实现，使用quicklist来完成
 typedef struct quicklist {
+
+    // 前一个节点
     quicklistNode *head;
+
+    // 后一个节点
     quicklistNode *tail;
+
+    // 节点个数
     unsigned long count;        /* total count of all entries in all ziplists */
+
+    // 节点的长度
     unsigned long len;          /* number of quicklistNodes */
-    int fill : QL_FILL_BITS;              /* fill factor for individual nodes */
-    unsigned int compress : QL_COMP_BITS; /* depth of end nodes not to compress;0=off */
+    int fill: QL_FILL_BITS;              /* fill factor for individual nodes */
+    unsigned int compress: QL_COMP_BITS; /* depth of end nodes not to compress;0=off */
     unsigned int bookmark_count: QL_BM_BITS;
     quicklistBookmark bookmarks[];
 } quicklist;
@@ -150,52 +182,85 @@ typedef struct quicklistEntry {
 
 /* Prototypes */
 quicklist *quicklistCreate(void);
+
 quicklist *quicklistNew(int fill, int compress);
+
 void quicklistSetCompressDepth(quicklist *quicklist, int depth);
+
 void quicklistSetFill(quicklist *quicklist, int fill);
+
 void quicklistSetOptions(quicklist *quicklist, int fill, int depth);
+
 void quicklistRelease(quicklist *quicklist);
+
 int quicklistPushHead(quicklist *quicklist, void *value, const size_t sz);
+
 int quicklistPushTail(quicklist *quicklist, void *value, const size_t sz);
+
 void quicklistPush(quicklist *quicklist, void *value, const size_t sz,
                    int where);
+
 void quicklistAppendZiplist(quicklist *quicklist, unsigned char *zl);
+
 quicklist *quicklistAppendValuesFromZiplist(quicklist *quicklist,
                                             unsigned char *zl);
+
 quicklist *quicklistCreateFromZiplist(int fill, int compress,
                                       unsigned char *zl);
+
 void quicklistInsertAfter(quicklist *quicklist, quicklistEntry *node,
                           void *value, const size_t sz);
+
 void quicklistInsertBefore(quicklist *quicklist, quicklistEntry *node,
                            void *value, const size_t sz);
+
 void quicklistDelEntry(quicklistIter *iter, quicklistEntry *entry);
+
 int quicklistReplaceAtIndex(quicklist *quicklist, long index, void *data,
                             int sz);
+
 int quicklistDelRange(quicklist *quicklist, const long start, const long stop);
+
 quicklistIter *quicklistGetIterator(const quicklist *quicklist, int direction);
+
 quicklistIter *quicklistGetIteratorAtIdx(const quicklist *quicklist,
                                          int direction, const long long idx);
+
 int quicklistNext(quicklistIter *iter, quicklistEntry *node);
+
 void quicklistReleaseIterator(quicklistIter *iter);
+
 quicklist *quicklistDup(quicklist *orig);
+
 int quicklistIndex(const quicklist *quicklist, const long long index,
                    quicklistEntry *entry);
+
 void quicklistRewind(quicklist *quicklist, quicklistIter *li);
+
 void quicklistRewindTail(quicklist *quicklist, quicklistIter *li);
+
 void quicklistRotate(quicklist *quicklist);
+
 int quicklistPopCustom(quicklist *quicklist, int where, unsigned char **data,
                        unsigned int *sz, long long *sval,
                        void *(*saver)(unsigned char *data, unsigned int sz));
+
 int quicklistPop(quicklist *quicklist, int where, unsigned char **data,
                  unsigned int *sz, long long *slong);
+
 unsigned long quicklistCount(const quicklist *ql);
+
 int quicklistCompare(unsigned char *p1, unsigned char *p2, int p2_len);
+
 size_t quicklistGetLzf(const quicklistNode *node, void **data);
 
 /* bookmarks */
 int quicklistBookmarkCreate(quicklist **ql_ref, const char *name, quicklistNode *node);
+
 int quicklistBookmarkDelete(quicklist *ql, const char *name);
+
 quicklistNode *quicklistBookmarkFind(quicklist *ql, const char *name);
+
 void quicklistBookmarksClear(quicklist *ql);
 
 #ifdef REDIS_TEST

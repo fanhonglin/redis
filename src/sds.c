@@ -210,6 +210,8 @@ sds sdsdup(const sds s) {
 
 // 释放字符串
 void sdsfree(sds s) {
+
+    // 为空直接返回
     if (s == NULL) return;
 
     // 不直接释放内存，通过重置统计值达到清空

@@ -182,7 +182,11 @@ robj *createStringObjectFromLongLongWithOptions(long long value, int valueobj) {
     } else {
         if (value >= LONG_MIN && value <= LONG_MAX) {
             o = createObject(OBJ_STRING, NULL);
+
+            // ing
             o->encoding = OBJ_ENCODING_INT;
+
+            // ptr设置成数字
             o->ptr = (void *) ((long) value);
         } else {
             o = createObject(OBJ_STRING, sdsfromlonglong(value));
@@ -247,9 +251,16 @@ robj *dupStringObject(const robj *o) {
 }
 
 robj *createQuicklistObject(void) {
+
+    // 创建双端链表
     quicklist *l = quicklistCreate();
+
+    // 创建对象
     robj *o = createObject(OBJ_LIST, l);
+
+    // 类型重新指定为：quicklist
     o->encoding = OBJ_ENCODING_QUICKLIST;
+
     return o;
 }
 
@@ -495,10 +506,10 @@ robj *tryObjectEncoding(robj *o) {
      * Note that we are sure that a string larger than 20 chars is not
      * representable as a 32 nor 64 bit integer. */
 
-    // 计算sds的长度
+    // value 计算sds的长度
     len = sdslen(s);
 
-    // 长度小于20并且字符串转换成整形
+    // 长度小于20（由于64位系统的整形长度为19位，加上符号位就是20位），并且字符串转换成整形
     if (len <= 20 && string2l(s, len, &value)) {
         /* This object is encodable as a long. Try to use a shared object.
          * Note that we avoid using shared integers when maxmemory is used
@@ -510,14 +521,27 @@ robj *tryObjectEncoding(robj *o) {
             value < OBJ_SHARED_INTEGERS) {
             decrRefCount(o);
             incrRefCount(shared.integers[value]);
+
+            // 0-10000,共享数据10000
             return shared.integers[value];
         } else {
+
+            // 如果encoding= raw
             if (o->encoding == OBJ_ENCODING_RAW) {
+
+                // 释放ptr空间
                 sdsfree(o->ptr);
+
+                // 设置成int
                 o->encoding = OBJ_ENCODING_INT;
+
+                // 把ptr存放整形数据，而不是指针
                 o->ptr = (void *) value;
+
                 return o;
             } else if (o->encoding == OBJ_ENCODING_EMBSTR) {
+
+                // 如果类型为embstr
                 decrRefCount(o);
                 return createStringObjectFromLongLongForValue(value);
             }
@@ -529,7 +553,7 @@ robj *tryObjectEncoding(robj *o) {
      * In this representation the object and the SDS string are allocated
      * in the same chunk of memory to save space and cache misses. */
 
-    // 如果长度小于44
+    // 如果长度小于44; 64-1(type+encoding)-3(lru)-8(refcount)-8(ptr) = 44
     if (len <= OBJ_ENCODING_EMBSTR_SIZE_LIMIT) {
 
         // 创建redisObject

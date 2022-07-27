@@ -96,13 +96,21 @@ void _quicklistBookmarkDelete(quicklist *ql, quicklistBookmark *bm);
 
 /* Create a new quicklist.
  * Free with quicklistRelease(). */
+
+// 创建quicklist
 quicklist *quicklistCreate(void) {
     struct quicklist *quicklist;
 
+    // 分配内存
     quicklist = zmalloc(sizeof(*quicklist));
+
+    // head、tail都指向 null，还没有数据
     quicklist->head = quicklist->tail = NULL;
+
+    // 长度、个数为0
     quicklist->len = 0;
     quicklist->count = 0;
+
     quicklist->compress = 0;
     quicklist->fill = -2;
     quicklist->bookmark_count = 0;
