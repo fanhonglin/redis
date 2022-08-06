@@ -377,6 +377,8 @@ struct redisCommand redisCommandTable[] = {
 
 
      //------------------set------------------------//
+
+     // sadd xx  a b c
     {"sadd",saddCommand,-3,
      "write use-memory fast @set",
      0,NULL,1,1,1,0,0,0},
