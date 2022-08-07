@@ -99,6 +99,7 @@ void _quicklistBookmarkDelete(quicklist *ql, quicklistBookmark *bm);
 
 // 创建quicklist
 quicklist *quicklistCreate(void) {
+
     struct quicklist *quicklist;
 
     // 分配内存
@@ -111,7 +112,10 @@ quicklist *quicklistCreate(void) {
     quicklist->len = 0;
     quicklist->count = 0;
 
+    // 是否压缩
     quicklist->compress = 0;
+
+    // ziplist包含的数据项 ，默认8KB
     quicklist->fill = -2;
     quicklist->bookmark_count = 0;
     return quicklist;
@@ -138,7 +142,11 @@ void quicklistSetFill(quicklist *quicklist, int fill) {
 }
 
 void quicklistSetOptions(quicklist *quicklist, int fill, int depth) {
+
+    // 校验fill
     quicklistSetFill(quicklist, fill);
+
+    // 设置压缩
     quicklistSetCompressDepth(quicklist, depth);
 }
 
@@ -498,18 +506,29 @@ REDIS_STATIC int _quicklistNodeAllowMerge(const quicklistNode *a,
  * Returns 0 if used existing head.
  * Returns 1 if new head created. */
 int quicklistPushHead(quicklist *quicklist, void *value, size_t sz) {
+
+    // node
     quicklistNode *orig_head = quicklist->head;
+
     assert(sz < UINT32_MAX); /* TODO: add support for quicklist nodes that are sds encoded (not zipped) */
-    if (likely(
-            _quicklistNodeAllowInsert(quicklist->head, quicklist->fill, sz))) {
-        quicklist->head->zl =
-            ziplistPush(quicklist->head->zl, value, sz, ZIPLIST_HEAD);
+
+    // 头部节点仍然可以插入
+    if (likely(_quicklistNodeAllowInsert(quicklist->head, quicklist->fill, sz))) {
+
+        // 直接插入数据
+        quicklist->head->zl =ziplistPush(quicklist->head->zl, value, sz, ZIPLIST_HEAD);
         quicklistNodeUpdateSz(quicklist->head);
     } else {
+
+        // 头部节点不可以插入，新建quicklistNode
         quicklistNode *node = quicklistCreateNode();
+
+        // ziplist
         node->zl = ziplistPush(ziplistNew(), value, sz, ZIPLIST_HEAD);
 
         quicklistNodeUpdateSz(node);
+
+        // 新建的quicklistnode插入到quicklist当中
         _quicklistInsertNodeBefore(quicklist, quicklist->head, node);
     }
     quicklist->count++;
@@ -1446,8 +1465,12 @@ int quicklistPop(quicklist *quicklist, int where, unsigned char **data,
 void quicklistPush(quicklist *quicklist, void *value, const size_t sz,
                    int where) {
     if (where == QUICKLIST_HEAD) {
+
+        // push head
         quicklistPushHead(quicklist, value, sz);
     } else if (where == QUICKLIST_TAIL) {
+
+        // push tail
         quicklistPushTail(quicklist, value, sz);
     }
 }

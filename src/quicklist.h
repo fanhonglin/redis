@@ -53,7 +53,7 @@ typedef struct quicklistNode {
     // 后面一个节点
     struct quicklistNode *next;
 
-    // 1bite
+    // 1bite ziplist
     unsigned char *zl;
 
     // 8byte
@@ -128,10 +128,10 @@ typedef struct quicklistBookmark {
 // list的实现，使用quicklist来完成
 typedef struct quicklist {
 
-    // 前一个节点
+    // header
     quicklistNode *head;
 
-    // 后一个节点
+    // tail
     quicklistNode *tail;
 
     // 节点个数
@@ -139,7 +139,9 @@ typedef struct quicklist {
 
     // 节点的长度
     unsigned long len;          /* number of quicklistNodes */
+
     int fill: QL_FILL_BITS;              /* fill factor for individual nodes */
+
     unsigned int compress: QL_COMP_BITS; /* depth of end nodes not to compress;0=off */
     unsigned int bookmark_count: QL_BM_BITS;
     quicklistBookmark bookmarks[];

@@ -32,10 +32,18 @@
 #define __INTSET_H
 #include <stdint.h>
 
+// 整形集合 set-max-intset-entries=512
 typedef struct intset {
+
+    // 编码
     uint32_t encoding;
+
+    // 元素个数
     uint32_t length;
+
+    // 柔性数组
     int8_t contents[];
+
 } intset;
 
 intset *intsetNew(void);

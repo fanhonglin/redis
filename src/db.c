@@ -61,6 +61,8 @@ void updateLFU(robj *val) {
  * implementations that should instead rely on lookupKeyRead(),
  * lookupKeyWrite() and lookupKeyReadWithFlags(). */
 robj *lookupKey(redisDb *db, robj *key, int flags) {
+
+    // 查找是否存在
     dictEntry *de = dictFind(db->dict, key->ptr);
     if (de) {
         robj *val = dictGetVal(de);

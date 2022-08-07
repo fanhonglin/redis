@@ -294,6 +294,8 @@ struct redisCommand redisCommandTable[] = {
 
 
      //-----------------list命令------------------------//
+
+     // rpush
     {"rpush",rpushCommand,-3,
      "write use-memory fast @list",
      0,NULL,1,1,1,0,0,0},
@@ -383,6 +385,7 @@ struct redisCommand redisCommandTable[] = {
      "write use-memory fast @set",
      0,NULL,1,1,1,0,0,0},
 
+     // sremove xx a
     {"srem",sremCommand,-3,
      "write fast @set",
      0,NULL,1,1,1,0,0,0},
@@ -391,6 +394,7 @@ struct redisCommand redisCommandTable[] = {
      "write fast @set",
      0,NULL,1,2,1,0,0,0},
 
+     // 查找元素
     {"sismember",sismemberCommand,3,
      "read-only fast @set",
      0,NULL,1,1,1,0,0,0},
@@ -403,6 +407,7 @@ struct redisCommand redisCommandTable[] = {
      "read-only fast @set",
      0,NULL,1,1,1,0,0,0},
 
+     //
     {"spop",spopCommand,-2,
      "write random fast @set",
      0,NULL,1,1,1,0,0,0},

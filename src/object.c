@@ -250,6 +250,7 @@ robj *dupStringObject(const robj *o) {
     }
 }
 
+// 创建quicklist
 robj *createQuicklistObject(void) {
 
     // 创建双端链表
@@ -271,6 +272,7 @@ robj *createZiplistObject(void) {
     return o;
 }
 
+// 创建 set对象
 robj *createSetObject(void) {
     dict *d = dictCreate(&setDictType, NULL);
     robj *o = createObject(OBJ_SET, d);
@@ -278,9 +280,16 @@ robj *createSetObject(void) {
     return o;
 }
 
+// 创建空的 intset对象
 robj *createIntsetObject(void) {
+
+    // 创建空间
     intset *is = intsetNew();
+
+    // 设置为 object set
     robj *o = createObject(OBJ_SET, is);
+
+    // 编码设置为 intset  6
     o->encoding = OBJ_ENCODING_INTSET;
     return o;
 }

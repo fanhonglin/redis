@@ -41,6 +41,8 @@
  * There is no need for the caller to increment the refcount of 'value' as
  * the function takes care of it if needed. */
 void listTypePush(robj *subject, robj *value, int where) {
+
+    // quicklist
     if (subject->encoding == OBJ_ENCODING_QUICKLIST) {
         int pos = (where == LIST_HEAD) ? QUICKLIST_HEAD : QUICKLIST_TAIL;
         if (value->encoding == OBJ_ENCODING_INT) {
@@ -235,6 +237,8 @@ void pushGenericCommand(client *c, int where, int xx) {
     }
 
     robj *lobj = lookupKeyWrite(c->db, c->argv[1]);
+
+    // 检查类型
     if (checkType(c, lobj, OBJ_LIST)) return;
     if (!lobj) {
         if (xx) {
@@ -244,12 +248,18 @@ void pushGenericCommand(client *c, int where, int xx) {
 
         // 创建quicklist
         lobj = createQuicklistObject();
+
+        // 设置属性
         quicklistSetOptions(lobj->ptr, server.list_max_ziplist_size,
                             server.list_compress_depth);
+
+        // 添加key到数据库
         dbAdd(c->db, c->argv[1], lobj);
     }
 
+    // 添加元素
     for (j = 2; j < c->argc; j++) {
+
         listTypePush(lobj, c->argv[j], where);
         server.dirty++;
     }
@@ -263,7 +273,7 @@ void pushGenericCommand(client *c, int where, int xx) {
 
 /* LPUSH <key> <element> [<element> ...] */
 
-// lpush
+// lpush, 添加元素
 void lpushCommand(client *c) {
     pushGenericCommand(c, LIST_HEAD, 0);
 }
