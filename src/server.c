@@ -380,6 +380,7 @@ struct redisCommand redisCommandTable[] = {
 
      //------------------set------------------------//
 
+     // quicklist + ziplist
      // sadd xx  a b c
     {"sadd",saddCommand,-3,
      "write use-memory fast @set",
@@ -448,6 +449,11 @@ struct redisCommand redisCommandTable[] = {
      "read-only random @set",
      0,NULL,1,1,1,0,0,0},
 
+
+     // 有序集合
+     //-------------------zset-----------------------------//
+
+     // zadd 添加元素
     {"zadd",zaddCommand,-4,
      "write use-memory fast @sortedset",
      0,NULL,1,1,1,0,0,0},

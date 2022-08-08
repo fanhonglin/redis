@@ -107,9 +107,12 @@ static void _dictReset(dictht *ht)
 dict *dictCreate(dictType *type,
         void *privDataPtr)
 {
+    // 分配字典空间
     dict *d = zmalloc(sizeof(*d));
 
+    // 初始化字典
     _dictInit(d,type,privDataPtr);
+
     return d;
 }
 

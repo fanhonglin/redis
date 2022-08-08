@@ -302,12 +302,21 @@ robj *createHashObject(void) {
 }
 
 robj *createZsetObject(void) {
+
+    // 创建zset
     zset *zs = zmalloc(sizeof(*zs));
     robj *o;
 
+    // 创建字典
     zs->dict = dictCreate(&zsetDictType, NULL);
+
+    // 创建
     zs->zsl = zslCreate();
+
+    // zset
     o = createObject(OBJ_ZSET, zs);
+
+    // encoding设置为 skiplist
     o->encoding = OBJ_ENCODING_SKIPLIST;
     return o;
 }
